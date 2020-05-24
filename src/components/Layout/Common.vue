@@ -3,7 +3,7 @@
     <div class="commonMain">
       <Aside class="commonAside"></Aside>
       <div class="commonContentWrap">
-        <Header class="commonHeader"></Header>
+        <Header class="commonHeader drag"></Header>
         <keep-alive>
           <router-view class="commonContent" />
         </keep-alive>
