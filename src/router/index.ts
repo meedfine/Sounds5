@@ -7,7 +7,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    redirect: "/findMusic"
+    redirect: "/localMusic"
   },
   {
     path: "/findMusic",

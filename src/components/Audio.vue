@@ -12,8 +12,14 @@ export default Vue.extend({
       audioSource: "" as any,
       audioGain: "" as any,
       volPercent: 0,
-      intervalId: "" as any
+      intervalId: "" as any,
+      timeIntervalId: "" as any
     };
+  },
+  computed: {
+    volume() {
+      return (this as any).volPercent * 0.01 * 0.2;
+    }
   },
   watch: {
     async "$store.state.playIndex"(val) {
@@ -35,7 +41,27 @@ export default Vue.extend({
     }
   },
   methods: {
+    changeCurrentTime(offsetTime) {
+      if (this.audioContext) {
+        const audioContext = new AudioContext();
+        const audioSource = audioContext.createBufferSource();
+        const audioGain = audioContext.createGain();
+        audioSource.buffer = this.audioSource.buffer;
+        audioSource.connect(audioGain);
+        audioGain.connect(audioContext.destination);
+        this.volPercent = 0;
+        this.fadeIn();
+        this.playAudio({
+          audioContext,
+          audioSource,
+          audioGain,
+          offsetTime
+        });
+      }
+    },
     async initAudio(path) {
+      clearInterval(this.timeIntervalId);
+      this.$store.commit("SET_CURRENTTIME", 0);
       const data = await nativeUtil.readAudioFile(path);
       const audioContext = new AudioContext();
       const audioSource = audioContext.createBufferSource();
@@ -47,16 +73,23 @@ export default Vue.extend({
         return {
           audioContext,
           audioSource,
-          audioGain
+          audioGain,
+          offsetTime: 0
         };
       });
     },
     playAudio(data) {
+      clearInterval(this.timeIntervalId);
       this.audioContext.close();
       this.audioContext = data.audioContext;
       this.audioSource = data.audioSource;
       this.audioGain = data.audioGain;
-      this.audioSource.start(0);
+      this.audioGain.gain.setValueAtTime(this.volume, 0);
+      this.audioSource.start(0, data.offsetTime + this.audioContext.currentTime);
+      this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
+      this.timeIntervalId = setInterval(() => {
+        this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
+      }, 1000);
     },
     fadeIn(fn?: Function) {
       if (!this.audioGain || !this.audioContext) {
@@ -75,15 +108,15 @@ export default Vue.extend({
     fadeInterval(type, fn?) {
       // 重复20次
       clearInterval(this.intervalId);
+      this.audioGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
       this.intervalId = setInterval(() => {
         type == "in" ? (this.volPercent += 5) : (this.volPercent -= 5);
-        console.log(this.volPercent);
-        this.audioGain.gain.setValueAtTime(this.volPercent / 100, this.audioContext.currentTime);
+        this.audioGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
         if (this.volPercent >= 100 || this.volPercent <= 0) {
           clearInterval(this.intervalId);
           fn && fn();
         }
-      }, 100);
+      }, 25);
     }
   }
 });

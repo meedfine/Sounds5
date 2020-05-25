@@ -82,7 +82,7 @@
       "prettier/prettier": [
         "warn",
         {
-          "printWidth": 140
+          "printWidth": 160
         }
       ]
     }

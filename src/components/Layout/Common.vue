@@ -36,6 +36,7 @@ export default Vue.extend({
 .commonMain {
   flex: 1 0 100px;
   display: flex;
+  overflow: hidden;
 }
 .commonFooter {
   flex: 0 0 auto;
@@ -46,6 +47,7 @@ export default Vue.extend({
   background-image: linear-gradient(to bottom right, #cee9ef, #f3eded);
 }
 .commonContentWrap {
+  overflow-x: hidden;
   flex: 1 0 100px;
   display: flex;
   flex-direction: column;
@@ -56,5 +58,6 @@ export default Vue.extend({
 }
 .commonContent {
   flex: 1 0 100px;
+  overflow: hidden;
 }
 </style>

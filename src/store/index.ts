@@ -5,8 +5,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    playList: [],
+    playList: [{}] as AudioDes[],
     playIndex: 0,
+    currentTime: 0,
     playStatus: false,
     volume: 0.3
   },
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     },
     SET_PLAYINDEX(state, value) {
       state.playIndex = value;
+    },
+    SET_CURRENTTIME(state, value) {
+      state.currentTime = value;
     },
     SET_PLAYSTATUS(state, value) {
       state.playStatus = value;

@@ -2,7 +2,8 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
-import "./plugins/element";
+import "./utils/element";
+import "./utils/filter";
 import "./assets/icons/iconfont.css";
 
 Vue.config.productionTip = false;
