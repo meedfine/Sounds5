@@ -19,3 +19,5 @@ interface AudioDes {
   name?: string;
   picture?: Buffer | undefined;
 }
+
+type PlayType = "round" | "single" | "random" | "sequence"; // 循环 单曲 随机 顺序

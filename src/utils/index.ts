@@ -58,6 +58,77 @@ const funcGroup = {
   },
   async readAudioFile(path: string): Promise<any> {
     return fsPromises.readFile(path);
+  },
+  getPrevIndex(mode: PlayType, length: number, curIndex?: number) {
+    if (mode == "random") {
+      if (length == 0 || length == 1) {
+        return 0;
+      }
+      let randomNum = -1;
+      do {
+        randomNum = Math.floor(Math.random() * length);
+      } while (randomNum == curIndex);
+      return randomNum;
+    } else if (mode == "round") {
+      if (curIndex === undefined) {
+        curIndex = length;
+      }
+      let newIndex = curIndex - 1;
+      if (newIndex < 0) {
+        newIndex += length;
+      }
+      return newIndex;
+    } else if (mode == "sequence") {
+      if (curIndex === undefined) {
+        curIndex = length;
+      }
+      let newIndex = curIndex - 1;
+      if (newIndex < 0) {
+        newIndex = -1;
+      }
+      return newIndex;
+    } else if (mode == "single") {
+      if (curIndex === undefined) {
+        curIndex = 0;
+      }
+      return curIndex;
+    }
+  },
+  getNextIndex(mode: PlayType, length: number, curIndex?: number) {
+    if (mode == "random") {
+      if (length == 0 || length == 1) {
+        return 0;
+      }
+      let randomNum = -1;
+      do {
+        randomNum = Math.floor(Math.random() * length);
+      } while (randomNum == curIndex);
+
+      return randomNum;
+    } else if (mode == "round") {
+      if (curIndex === undefined) {
+        curIndex = -1;
+      }
+      let newIndex = curIndex + 1;
+      if (newIndex >= length) {
+        newIndex -= length;
+      }
+      return newIndex;
+    } else if (mode == "sequence") {
+      if (curIndex === undefined) {
+        curIndex = -1;
+      }
+      let newIndex = curIndex + 1;
+      if (newIndex >= length) {
+        newIndex = -1;
+      }
+      return newIndex;
+    } else if (mode == "single") {
+      if (curIndex === undefined) {
+        curIndex = 0;
+      }
+      return curIndex;
+    }
   }
 };
 export default funcGroup;

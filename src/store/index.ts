@@ -6,10 +6,11 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     playList: [{}] as AudioDes[],
-    playIndex: 0,
+    playIndex: -1,
     currentTime: 0,
     playStatus: false,
-    volume: 0.3
+    volume: 0.3,
+    mode: "round" as PlayType // round random sequence single
   },
   mutations: {
     SET_PLAYLIST(state, value) {
@@ -26,6 +27,26 @@ export default new Vuex.Store({
     },
     SET_VOLUME(state, value) {
       state.volume = value;
+    },
+    SET_MODE(state, value) {
+      if (value) {
+        state.mode = value;
+      } else {
+        switch (state.mode) {
+          case "round":
+            state.mode = "random";
+            break;
+          case "random":
+            state.mode = "sequence";
+            break;
+          case "sequence":
+            state.mode = "single";
+            break;
+          case "single":
+            state.mode = "round";
+            break;
+        }
+      }
     }
   },
   actions: {},

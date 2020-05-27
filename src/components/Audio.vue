@@ -88,6 +88,16 @@ export default Vue.extend({
       this.audioSource.start(0, data.offsetTime + this.audioContext.currentTime);
       this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
       this.timeIntervalId = setInterval(() => {
+        if (!this.$store.state.playStatus) {
+          // clearInterval(this.timeIntervalId);
+          return;
+        }
+        // musicmeta读出来的duration 比转成audioSoure格式的duration大，稍作兼容
+        if (data.offsetTime + this.audioContext.currentTime > this.audioSource.buffer.duration + 0.1) {
+          clearInterval(this.timeIntervalId);
+          this.goNextMusic();
+          return;
+        }
         this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
       }, 1000);
     },
@@ -117,6 +127,11 @@ export default Vue.extend({
           fn && fn();
         }
       }, 25);
+    },
+    goNextMusic() {
+      const nextIndex = nativeUtil.getNextIndex(this.$store.state.mode, this.$store.state.playList.length, this.$store.state.playIndex);
+      this.$store.commit("SET_PLAYINDEX", nextIndex);
+      this.$store.commit("SET_PLAYSTATUS", true);
     }
   }
 });
