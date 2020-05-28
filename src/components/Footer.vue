@@ -13,7 +13,7 @@
           <span class="title">{{ musicInfo.title }}</span>
           <span class="artists"> - {{ musicInfo.artists | formatArtists }}</span>
         </div>
-        <div class="duration">{{ $store.state.currentTime | formatDuration }} / {{ musicInfo.duration | formatDuration }}</div>
+        <div class="duration">{{ currentTime | formatDuration }} / {{ musicInfo.duration | formatDuration }}</div>
       </div>
     </div>
     <div class="musicPlay">
@@ -30,7 +30,7 @@
     <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="300px"> </el-drawer>
     <el-drawer class="musicDetail" direction="btt" :visible.sync="musicDetail" :with-header="false" size="100%"> </el-drawer>
     <el-slider v-if="musicInfo.duration" v-model="durationProgress" class="durationWrap" :show-tooltip="false" @change="changeCurrentTime"></el-slider>
-    <Audio ref="audio"></Audio>
+    <Audio ref="audio" :path="musicInfo.path" :status="$store.state.playStatus" @musicEnd="goNextMusic" @musicUpdateTime="updateTime"></Audio>
   </footer>
 </template>
 
@@ -46,7 +46,8 @@ export default Vue.extend({
     return {
       listDrawer: false,
       musicDetail: false,
-      durationProgress: 0
+      durationProgress: 0,
+      currentTime: 0
     };
   },
   computed: {
@@ -67,16 +68,15 @@ export default Vue.extend({
       return "data:image/png;base64," + window.btoa(data);
     }
   },
-  watch: {
-    "$store.state.currentTime"(currentTime) {
+  methods: {
+    updateTime(currentTime) {
+      this.currentTime = currentTime;
       // 数据都要取整
       const playList = this.$store.state.playList;
       const playIndex = this.$store.state.playIndex;
-      const duration = Math.floor(playList[playIndex].duration);
+      const duration = playList[playIndex].duration;
       this.durationProgress = (currentTime / duration) * 100;
-    }
-  },
-  methods: {
+    },
     togglePlay() {
       this.$store.commit("SET_PLAYSTATUS", !this.$store.state.playStatus);
     },

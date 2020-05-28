@@ -4,8 +4,21 @@
 
 <script lang="ts">
 import Vue from "vue";
-import nativeUtil from "@/utils/index";
+import fs from "fs";
+const fsPromises = fs.promises;
 export default Vue.extend({
+  props: {
+    // 音频路径
+    path: {
+      type: String,
+      default: ""
+    },
+    // 播放状态
+    status: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       audioContext: new AudioContext(),
@@ -22,14 +35,13 @@ export default Vue.extend({
     }
   },
   watch: {
-    async "$store.state.playIndex"(val) {
-      const playList = this.$store.state.playList;
+    async path(val) {
       this.fadeOut();
-      const data = await this.initAudio(playList[val].path);
+      const data = await this.initAudio(val);
       this.playAudio(data);
       this.fadeIn();
     },
-    "$store.state.playStatus"(val) {
+    status(val) {
       if (val) {
         this.audioContext.resume();
         this.fadeIn();
@@ -61,8 +73,8 @@ export default Vue.extend({
     },
     async initAudio(path) {
       clearInterval(this.timeIntervalId);
-      this.$store.commit("SET_CURRENTTIME", 0);
-      const data = await nativeUtil.readAudioFile(path);
+      this.$emit("musicUpdateTime", 0);
+      const data = await this.readAudioFile(path);
       const audioContext = new AudioContext();
       const audioSource = audioContext.createBufferSource();
       const audioGain = audioContext.createGain();
@@ -86,20 +98,22 @@ export default Vue.extend({
       this.audioGain = data.audioGain;
       this.audioGain.gain.setValueAtTime(this.volume, 0);
       this.audioSource.start(0, data.offsetTime + this.audioContext.currentTime);
-      this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
+      this.$emit("musicUpdateTime", data.offsetTime + this.audioContext.currentTime);
       this.timeIntervalId = setInterval(() => {
-        if (!this.$store.state.playStatus) {
-          // clearInterval(this.timeIntervalId);
+        if (!this.status) {
           return;
         }
         // musicmeta读出来的duration 比转成audioSoure格式的duration大，稍作兼容
         if (data.offsetTime + this.audioContext.currentTime > this.audioSource.buffer.duration + 0.1) {
-          clearInterval(this.timeIntervalId);
-          this.goNextMusic();
+          this.$emit("musicUpdateTime", this.audioSource.buffer.duration);
+          setTimeout(() => {
+            clearInterval(this.timeIntervalId);
+            this.$emit("musicEnd", true);
+          }, 200);
           return;
         }
-        this.$store.commit("SET_CURRENTTIME", data.offsetTime + this.audioContext.currentTime);
-      }, 1000);
+        this.$emit("musicUpdateTime", data.offsetTime + this.audioContext.currentTime);
+      }, 500);
     },
     fadeIn(fn?: Function) {
       if (!this.audioGain || !this.audioContext) {
@@ -128,10 +142,8 @@ export default Vue.extend({
         }
       }, 25);
     },
-    goNextMusic() {
-      const nextIndex = nativeUtil.getNextIndex(this.$store.state.mode, this.$store.state.playList.length, this.$store.state.playIndex);
-      this.$store.commit("SET_PLAYINDEX", nextIndex);
-      this.$store.commit("SET_PLAYSTATUS", true);
+    async readAudioFile(path: string): Promise<any> {
+      return fsPromises.readFile(path);
     }
   }
 });
