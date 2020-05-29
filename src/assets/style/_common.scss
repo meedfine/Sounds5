@@ -9,7 +9,9 @@
 *::after {
   box-sizing: inherit;
 }
-*:focus { outline: none; }
+*:focus {
+  outline: none;
+}
 ul,
 ol,
 li {
@@ -41,7 +43,18 @@ li {
 html,
 body {
   height: 100%;
-  font: 14px/1.5 "Microsoft YaHei", "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font: 14px/1.5 "Microsoft YaHei", "Helvetica Neue", Helvetica, "PingFang SC",
+    "Hiragino Sans GB", Arial, sans-serif;
   box-sizing: border-box;
   overflow: hidden !important;
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+body .el-table th.gutter{
+  display: none;
 }

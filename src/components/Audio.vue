@@ -26,7 +26,8 @@ export default Vue.extend({
       audioGain: "" as any,
       volPercent: 0,
       intervalId: "" as any,
-      timeIntervalId: "" as any
+      timeIntervalId: "" as any,
+      readyFlag: false
     };
   },
   computed: {
@@ -43,8 +44,10 @@ export default Vue.extend({
     },
     status(val) {
       if (val) {
-        this.audioContext.resume();
-        this.fadeIn();
+        if (this.readyFlag) {
+          this.fadeIn();
+          this.audioContext.resume();
+        }
       } else {
         this.fadeOut(() => {
           this.audioContext.suspend();
@@ -74,11 +77,13 @@ export default Vue.extend({
     async initAudio(path) {
       clearInterval(this.timeIntervalId);
       this.$emit("musicUpdateTime", 0);
+      this.readyFlag = false;
       const data = await this.readAudioFile(path);
       const audioContext = new AudioContext();
       const audioSource = audioContext.createBufferSource();
       const audioGain = audioContext.createGain();
       return audioContext.decodeAudioData(data.buffer).then(value => {
+        this.readyFlag = true;
         audioSource.buffer = value;
         audioSource.connect(audioGain);
         audioGain.connect(audioContext.destination);
@@ -97,7 +102,7 @@ export default Vue.extend({
       this.audioSource = data.audioSource;
       this.audioGain = data.audioGain;
       this.audioGain.gain.setValueAtTime(this.volume, 0);
-      this.audioSource.start(0, data.offsetTime + this.audioContext.currentTime);
+      this.audioSource.start(0, data.offsetTime);
       this.$emit("musicUpdateTime", data.offsetTime + this.audioContext.currentTime);
       this.timeIntervalId = setInterval(() => {
         if (!this.status) {
@@ -135,9 +140,15 @@ export default Vue.extend({
       this.audioGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
       this.intervalId = setInterval(() => {
         type == "in" ? (this.volPercent += 5) : (this.volPercent -= 5);
+        if (this.volPercent > 100) {
+          this.volPercent = 100;
+        } else if (this.volPercent < 0) {
+          this.volPercent = 0;
+        }
         this.audioGain.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
         if (this.volPercent >= 100 || this.volPercent <= 0) {
           clearInterval(this.intervalId);
+
           fn && fn();
         }
       }, 25);

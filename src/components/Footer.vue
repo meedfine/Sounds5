@@ -11,7 +11,7 @@
       <div v-if="musicInfo.title" class="musicMeta">
         <div class="name">
           <span class="title">{{ musicInfo.title }}</span>
-          <span class="artists"> - {{ musicInfo.artists | formatArtists }}</span>
+          <span class="artists"> {{ musicInfo.artists | formatArtists }}</span>
         </div>
         <div class="duration">{{ currentTime | formatDuration }} / {{ musicInfo.duration | formatDuration }}</div>
       </div>
@@ -27,7 +27,31 @@
       <i class="iconfont" :class="'i-' + $store.state.mode" @click="toggleMode"></i>
       <i class="iconfont i-list" @click="toggleList"></i>
     </div>
-    <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="300px"> </el-drawer>
+    <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="300px">
+      <div class="drawerTitle">
+        播放队列
+        <div class="subTitle">
+          <span>{{ $store.state.playList.length }}首歌曲</span>
+          <div class="subControl">
+            清空
+          </div>
+        </div>
+      </div>
+      <ul id="listUl" ref="listUl" class="listUl">
+        <li
+          v-for="(item, index) in $store.state.playList"
+          :key="index"
+          class="playItem"
+          :class="{ active: index == $store.state.playIndex }"
+          @dblclick="goPlayIndex(index)"
+        >
+          <div class="itemInfo">
+            <div class="itemHeader">{{ item.title }}</div>
+            <div class="itemArtist">{{ item.artists | formatArtists }}</div>
+          </div>
+        </li>
+      </ul>
+    </el-drawer>
     <el-drawer class="musicDetail" direction="btt" :visible.sync="musicDetail" :with-header="false" size="100%"> </el-drawer>
     <el-slider v-if="musicInfo.duration" v-model="durationProgress" class="durationWrap" :show-tooltip="false" @change="changeCurrentTime"></el-slider>
     <Audio ref="audio" :path="musicInfo.path" :status="$store.state.playStatus" @musicEnd="goNextMusic" @musicUpdateTime="updateTime"></Audio>
@@ -82,6 +106,16 @@ export default Vue.extend({
     },
     toggleList() {
       this.listDrawer = !this.listDrawer;
+      if (this.listDrawer) {
+        this.$nextTick(() => {
+          const height = (document.getElementsByClassName("listUl")[0] as any).offsetHeight;
+          if (document.getElementsByClassName("playItem").length) {
+            const itemHeight = (document.getElementsByClassName("playItem")[0] as any).offsetHeight;
+            const scrollHeight = itemHeight * this.$store.state.playIndex - height / 2 + itemHeight;
+            document.getElementsByClassName("listUl")[0].scrollTo(0, scrollHeight);
+          }
+        });
+      }
     },
     toggleDetail() {
       this.musicDetail = !this.musicDetail;
@@ -91,6 +125,10 @@ export default Vue.extend({
       const playIndex = this.$store.state.playIndex;
       const duration = playList[playIndex].duration;
       (this.$refs.audio as any).changeCurrentTime((val / 100) * duration);
+    },
+    goPlayIndex(index) {
+      this.$store.commit("SET_PLAYINDEX", index);
+      this.$store.commit("SET_PLAYSTATUS", true);
     },
     goPrevMusic() {
       const prevIndex = util.getPrevIndex(this.$store.state.mode, this.$store.state.playList.length, this.$store.state.playIndex);
@@ -160,6 +198,7 @@ export default Vue.extend({
     }
   }
   .musicMeta {
+    flex: 1 0 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -167,22 +206,20 @@ export default Vue.extend({
     .name {
       display: flex;
       overflow: hidden;
+      @extend .ellipsis;
     }
     .title {
       font-size: 14px;
       color: #222;
-      flex: 2 0 100px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+      flex: 0 0 auto;
+      @extend .ellipsis;
     }
     .artists {
+      padding-left: 10px;
       font-size: 12px;
-      color: #444;
+      color: #666;
       flex: 1 0 50px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+      @extend .ellipsis;
     }
     .duration {
       font-size: 12px;
@@ -276,6 +313,49 @@ export default Vue.extend({
       margin: 0;
       transition: all 0.3s ease;
       background-color: rgba($color: #000000, $alpha: 0);
+    }
+  }
+
+  // 播放列表
+  .listDrawer {
+    .el-drawer__body {
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawerTitle {
+      flex: 0 0 auto;
+      padding: 20px 20px 15px 20px;
+      font-size: 20px;
+      .subTitle {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #666;
+      }
+    }
+    .listUl {
+      flex: 1 0 300px;
+      overflow: scroll;
+    }
+    .playItem {
+      padding: 10px 20px;
+      transition: all 0.2s ease;
+      &.active {
+        background-color: rgb(233, 231, 231);
+        color: #39b973;
+      }
+      &:hover {
+        background-color: rgb(233, 231, 231);
+      }
+      .itemHeader {
+        @extend .ellipsis;
+        font-size: 14px;
+      }
+      .itemArtist {
+        @extend .ellipsis;
+        font-size: 12px;
+      }
     }
   }
 }
