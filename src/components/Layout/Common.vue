@@ -4,9 +4,11 @@
       <Aside class="commonAside"></Aside>
       <div class="commonContentWrap">
         <Header class="commonHeader drag"></Header>
-        <keep-alive>
-          <router-view class="commonContent" />
-        </keep-alive>
+        <div class="transitionWrap">
+          <keep-alive>
+            <transition name="fade"> <router-view class="commonContent"/></transition>
+          </keep-alive>
+        </div>
       </div>
     </div>
     <Footer class="commonFooter"></Footer>
@@ -47,7 +49,7 @@ export default Vue.extend({
   background-image: linear-gradient(to bottom right, #cee9ef, #f3eded);
 }
 .commonContentWrap {
-  overflow-x: hidden;
+  overflow: hidden;
   flex: 1 0 100px;
   display: flex;
   flex-direction: column;
@@ -57,7 +59,22 @@ export default Vue.extend({
   flex: 0 0 auto;
 }
 .commonContent {
+  transition: all 0.1s ease-in-out;
   flex: 1 0 100px;
-  overflow: hidden;
+}
+.transitionWrap {
+  flex: 1 0 100px;
+  display: flex;
+  position: relative;
+}
+.fade-enter-active {
+  transform: translateX(20%);
+  opacity: 0;
+}
+.fade-leave-active {
+  transform: translateX(-10%);
+  position: absolute;
+  left: 0;
+  opacity: 0;
 }
 </style>

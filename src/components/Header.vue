@@ -1,8 +1,8 @@
 <template>
   <header class="header">
     <div class="searchCom no-drag">
-      <i class="iconfont i-back active" @click="hideWindow"></i>
-      <i class="iconfont i-forward" @click="hideWindow"></i>
+      <i class="iconfont i-back" @click="goBack"></i>
+      <i class="iconfont i-forward" @click="goForward"></i>
       <el-input v-model="searchText" placeholder="搜索音乐、歌手"> </el-input>
     </div>
     <div class="controlCom no-drag">
@@ -43,6 +43,12 @@ export default Vue.extend({
     },
     closeWindow() {
       ipcRenderer.send("closeWindow");
+    },
+    goBack() {
+      this.$router.go(-1);
+    },
+    goForward() {
+      this.$router.go(1);
     }
   }
 });

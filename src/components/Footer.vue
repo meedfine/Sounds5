@@ -27,7 +27,7 @@
       <i class="iconfont" :class="'i-' + $store.state.mode" @click="toggleMode"></i>
       <i class="iconfont i-list" @click="toggleList"></i>
     </div>
-    <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="300px">
+    <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="280px">
       <div class="drawerTitle">
         播放队列
         <div class="subTitle">
