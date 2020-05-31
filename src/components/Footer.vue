@@ -27,7 +27,7 @@
       <i class="iconfont" :class="'i-' + $store.state.mode" @click="toggleMode"></i>
       <i class="iconfont i-list" @click="toggleList"></i>
     </div>
-    <el-drawer class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="280px">
+    <el-drawer :modal="false" class="listDrawer" :visible.sync="listDrawer" :with-header="false" size="280px">
       <div class="drawerTitle">
         播放队列
         <div class="subTitle">
@@ -52,7 +52,7 @@
         </li>
       </ul>
     </el-drawer>
-    <el-drawer class="musicDetail" direction="btt" :visible.sync="musicDetail" :with-header="false" size="100%"> </el-drawer>
+    <el-drawer :modal="false" class="musicDetail" direction="btt" :visible.sync="musicDetail" :with-header="false" size="100%"> </el-drawer>
     <el-slider v-if="musicInfo.duration" v-model="durationProgress" class="durationWrap" :show-tooltip="false" @change="changeCurrentTime"></el-slider>
     <Audio ref="audio" :path="musicInfo.path" :status="$store.state.playStatus" @musicEnd="goNextMusic" @musicUpdateTime="updateTime"></Audio>
   </footer>
@@ -149,6 +149,7 @@ export default Vue.extend({
 
 <style lang="scss">
 .footer {
+  // z-index: 9000;
   display: flex;
   justify-content: space-between;
   height: 50px;

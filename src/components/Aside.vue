@@ -1,35 +1,41 @@
 <template>
   <div class="aside">
-    <ul v-for="(item, index) in list" :key="index" class="list">
+    <ul v-for="(item, index) in list" :key="index" class="list" :style="{ height: item.height }">
       <div class="title">{{ item.name }}</div>
       <li v-for="(subItem, subIndex) in item.list" :key="subIndex" class="subList" :class="{ isPath: subItem.path }" @click="goPath(subItem.path)">
         {{ subItem.name }}
       </li>
     </ul>
+    <UserInfo class="loginTips">
+      <div class="login">登 录</div>
+      <div class="tips">以解锁FM、云盘、歌单</div>
+    </UserInfo>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import UserInfo from "./UserInfo.vue";
 export default Vue.extend({
+  components: {
+    UserInfo
+  },
   data() {
     return {
       list: [
         {
           name: "推荐",
+          height: "94px", // 58 + 36
           list: [
             {
               name: "发现音乐",
               path: "/findMusic"
-            },
-            {
-              name: "私人FM",
-              path: "/privateFM"
             }
           ]
         },
         {
           name: "我的音乐",
+          height: "130px", // 58 + 36 + 36
           list: [
             {
               name: "本地音乐",
@@ -38,15 +44,33 @@ export default Vue.extend({
             {
               name: "下载管理",
               path: "/download"
-            },
-            {
-              name: "音乐云盘",
-              path: "/musicCloud"
             }
           ]
         },
         {
+          name: "",
+          height: "auto", // 58 + 36 + 36
+          list: []
+        }
+      ]
+    };
+  },
+  watch: {
+    "$store.state.userInfo"(val) {
+      if (val && val.code == 200) {
+        this.list[0].height = "130px";
+        this.list[0].list.push({
+          name: "私人FM",
+          path: "/privateFM"
+        });
+        this.list[1].height = "166px";
+        this.list[1].list.push({
+          name: "音乐云盘",
+          path: "/musicCloud"
+        });
+        this.list[2] = {
           name: "我的歌单",
+          height: "auto",
           list: [
             {
               name: "我喜欢的音乐",
@@ -55,19 +79,11 @@ export default Vue.extend({
             {
               name: "ACG",
               path: "/list?id=12323"
-            },
-            {
-              name: "测试专用",
-              path: "/list?id=12323"
-            },
-            {
-              name: "以前喜欢的",
-              path: "/list?id=12323"
             }
           ]
-        }
-      ]
-    };
+        };
+      }
+    }
   },
   methods: {
     goPath(path) {
@@ -82,7 +98,10 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .aside {
   width: 220px;
-  padding: 10px 0;
+  padding: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
   .title {
     margin-top: 10px;
     padding: 20px 24px 10px;
@@ -92,9 +111,35 @@ export default Vue.extend({
   .subList {
     font-size: 14px;
     padding: 8px 24px;
+    height: 36px;
   }
   .isPath {
     cursor: pointer;
+    transition: all 0.1s ease;
+    &:hover {
+      background-color: #cee9ef;
+    }
+  }
+  .list {
+    transition: all 0.5s ease;
+    overflow: hidden;
+  }
+  .loginTips {
+    // cursor: pointer;
+    margin: auto 0 0;
+    padding: 4px;
+    text-align: center;
+    transition: all 0.2s ease;
+    background-color: rgba($color: #cfedf5, $alpha: 0.8);
+    &:hover {
+      background-color: rgba($color: #b7facd, $alpha: 0.8);
+    }
+    .login {
+      font-size: 16px;
+    }
+    .tips {
+      font-size: 12px;
+    }
   }
 }
 </style>

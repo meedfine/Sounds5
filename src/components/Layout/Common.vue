@@ -59,7 +59,7 @@ export default Vue.extend({
   flex: 0 0 auto;
 }
 .commonContent {
-  transition: all 0.1s ease-in-out;
+  transition: all 0.15s ease-in-out;
   flex: 1 0 100px;
 }
 .transitionWrap {
@@ -68,11 +68,11 @@ export default Vue.extend({
   position: relative;
 }
 .fade-enter-active {
-  transform: translateX(20%);
+  transform: translateX(30%);
   opacity: 0;
 }
 .fade-leave-active {
-  transform: translateX(-10%);
+  transform: translateX(-15%);
   position: absolute;
   left: 0;
   opacity: 0;

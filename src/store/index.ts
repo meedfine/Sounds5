@@ -10,7 +10,8 @@ export default new Vuex.Store({
     currentTime: 0,
     playStatus: false,
     volume: 0.3,
-    mode: "round" as PlayType // round random sequence single
+    mode: "round" as PlayType, // round random sequence single
+    userInfo: {}
   },
   mutations: {
     SET_PLAYLIST(state, value) {
@@ -47,6 +48,9 @@ export default new Vuex.Store({
             break;
         }
       }
+    },
+    SET_USERINFO(state, value) {
+      state.userInfo = value;
     }
   },
   actions: {},
